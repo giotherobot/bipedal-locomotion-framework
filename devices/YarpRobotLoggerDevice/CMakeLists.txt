@@ -11,6 +11,11 @@ if(FRAMEWORK_COMPILE_YarpRobotLoggerDevice)
     GIT_REPOSITORY https://gitlab.com/eidheim/tiny-process-library.git
     GIT_TAG v2.0.4)
 
+  include(FetchContent)
+  FetchContent_Declare(rerun_sdk URL
+      https://github.com/rerun-io/rerun/releases/latest/download/rerun_cpp_sdk.zip)
+  FetchContent_MakeAvailable(rerun_sdk)
+
   if(NOT tiny_process_library_POPULATED)
     FetchContent_Populate(tiny_process_library)
 
@@ -53,6 +58,7 @@ if(FRAMEWORK_COMPILE_YarpRobotLoggerDevice)
       BipedalLocomotion::TextLoggingYarpImplementation
       BipedalLocomotion::SystemYarpImplementation
       tiny-process-library::tiny-process-library
+      rerun_sdk
     CONFIGURE_PACKAGE_NAME yarp_robot_logger_device)
 
   install(FILES scripts/blf-logger-with-audio.sh
@@ -60,4 +66,3 @@ if(FRAMEWORK_COMPILE_YarpRobotLoggerDevice)
     DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 endif()
-
