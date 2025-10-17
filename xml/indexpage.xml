@@ -24,7 +24,7 @@
 <sect1 id="index_1exported-components">
 <title>📙 Exported components</title>
 <para>The <bold>bipedal-locomotion-framework</bold> project consists of several components. The components are stored in the <ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/master/src"><computeroutput>src</computeroutput></ulink> folder and their compilation depends on the installed dependencies.</para>
-<para><table rows="28" cols="3"><row>
+<para><table rows="29" cols="3"><row>
 <entry thead="yes" align='center'><para>Component   </para>
 </entry><entry thead="yes" align='center'><para>Description   </para>
 </entry><entry thead="yes" align='center'><para>Additional Dependencies    </para>
@@ -68,6 +68,11 @@
 <entry thead="no" align='center'><para><ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/master/src/Conversions"><computeroutput>CasadiConversions</computeroutput></ulink>   </para>
 </entry><entry thead="no" align='center'><para>Library related conversion utilities used in the framework   </para>
 </entry><entry thead="no" align='center'><para><ulink url="https://github.com/casadi/casadi"><computeroutput>CasADi</computeroutput></ulink>    </para>
+</entry></row>
+<row>
+<entry thead="no" align='center'><para><ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/master/src/ContinuousDynamicalSystem"><computeroutput>ContinuousDynamicalSystem</computeroutput></ulink>   </para>
+</entry><entry thead="no" align='center'><para>Library containing algorithms for continuous dynamical systems   </para>
+</entry><entry thead="no" align='center'><para><ulink url="https://github.com/artivis/manif"><computeroutput>manif</computeroutput></ulink>    </para>
 </entry></row>
 <row>
 <entry thead="no" align='center'><para><ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/master/src/Estimators"><computeroutput>Estimators</computeroutput></ulink>   </para>
@@ -172,8 +177,8 @@
 </sect1>
 <sect1 id="index_1install-with-conda">
 <title>📦 Install with conda (recommended)</title>
-<para>You can easily the library with <ulink url="https://anaconda.org/robotology/bipedal-locomotion-framework"><computeroutput>conda</computeroutput></ulink> using the following command</para>
-<para><programlisting filename=".sh"><codeline><highlight class="normal">conda<sp/>install<sp/>-c<sp/>robotology<sp/>bipedal-locomotion-framework</highlight></codeline>
+<para>You can easily the library with <ulink url="https://anaconda.org/conda-forge/bipedal-locomotion-framework"><computeroutput>conda</computeroutput></ulink> using the following command</para>
+<para><programlisting filename=".sh"><codeline><highlight class="normal">conda<sp/>install<sp/>-c<sp/>conda-forge<sp/>bipedal-locomotion-framework</highlight></codeline>
 </programlisting></para>
 <para><computeroutput>conda</computeroutput> will automatically install all the required dipendencies.</para>
 </sect1>
@@ -194,7 +199,7 @@
 </sect1>
 <sect1 id="index_1some-utilities">
 <title>🖥️  Some utilities</title>
-<para>The <bold>bipedal-locomotion-framework</bold> ships also some utilities that can help you in the everyday tests on a real robot. You can find them in the <ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/master/utilities"><computeroutput>utilities</computeroutput> folder</ulink>. Each utility contains a well-documented <computeroutput>README</computeroutput> where you can find further details.</para>
+<para>The <bold>bipedal-locomotion-framework</bold> ships also some utilities that can help you in the everyday tests on a real robot. You can find them in the <ulink url="https://github.com/ami-iit/bipedal-locomotion-framework/tree/v0.19.0/utilities"><computeroutput>utilities</computeroutput> folder</ulink>. Each utility contains a well-documented <computeroutput>README</computeroutput> where you can find further details.</para>
 </sect1>
 <sect1 id="index_1python">
 <title>🐍 Python</title>
