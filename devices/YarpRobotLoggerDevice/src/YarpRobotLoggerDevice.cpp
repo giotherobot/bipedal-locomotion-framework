@@ -1807,8 +1807,6 @@ void YarpRobotLoggerDevice::recordVideo(const std::string& cameraName, VideoWrit
     const auto recordVideoPeriod = std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::duration<double>(1.0 / double(writer.fps)));
 
-    unsigned int imageIndex = 0;
-
     while (writer.recordVideoIsRunning)
     {
         // detect if a clock has been reset
@@ -1837,7 +1835,7 @@ void YarpRobotLoggerDevice::recordVideo(const std::string& cameraName, VideoWrit
 
         if (writer.resetIndex)
         {
-            imageIndex = 0;
+            writer.frameIndex = 0;
             writer.resetIndex = false;
         }
 
@@ -1870,7 +1868,8 @@ void YarpRobotLoggerDevice::recordVideo(const std::string& cameraName, VideoWrit
                     assert(writer.rgb->saveMode == VideoWriter::SaveMode::Frame);
 
                     const std::filesystem::path imgPath
-                        = writer.rgb->framesPath / ("img_" + std::to_string(imageIndex) + ".png");
+                        = writer.rgb->framesPath
+                          / ("img_" + std::to_string(writer.frameIndex) + ".png");
 
                     cv::imwrite(imgPath.string(), writer.rgb->frame);
 
@@ -1915,7 +1914,8 @@ void YarpRobotLoggerDevice::recordVideo(const std::string& cameraName, VideoWrit
                     assert(writer.depth->saveMode == VideoWriter::SaveMode::Frame);
 
                     const std::filesystem::path imgPath
-                        = writer.depth->framesPath / ("img_" + std::to_string(imageIndex) + ".png");
+                        = writer.depth->framesPath
+                          / ("img_" + std::to_string(writer.frameIndex) + ".png");
 
                     // convert the image into 16bit grayscale image
                     cv::Mat image16Bit;
@@ -1933,7 +1933,7 @@ void YarpRobotLoggerDevice::recordVideo(const std::string& cameraName, VideoWrit
             }
 
             // increase the index
-            imageIndex++;
+            writer.frameIndex++;
 
         } // end of scope for the lock guarding the image saving
 
@@ -2656,19 +2656,46 @@ bool YarpRobotLoggerDevice::saveCallback(const std::string& fileName,
     }
 
     // rename the exogenous images folder if any
-    for (auto& [name, writer] : m_exogenousImageWriters)
+    for (auto& [signalName, writer] : m_exogenousImageWriters)
     {
-        log()->info("{} Saving the exogenous images for the signal named {}.", logPrefix, name);
+        log()->info("{} Saving the exogenous images for the signal named {}.",
+                    logPrefix,
+                    signalName);
 
         auto start = BipedalLocomotion::clock().now();
 
-        if (!saveVideo(writer.rgb, name, "rgb"))
+        if (!saveVideo(writer.rgb, signalName, "rgb"))
         {
             log()->error("{} Unable to save the exogenous images for the signal named {}.",
                          logPrefix,
-                         name);
+                         signalName);
             return false;
         }
+
+        log()->info("{} Saved exogenous images {}_{}_{} in {}.",
+                    logPrefix,
+                    fileName,
+                    signalName,
+                    "rgb",
+                    std::chrono::duration<double>(BipedalLocomotion::clock().now() - start));
+
+        if (method != robometry::SaveCallbackSaveMethod::periodic)
+        {
+            continue;
+        }
+
+        if (writer.rgb->saveMode == VideoWriter::SaveMode::Frame)
+        {
+            if (!this->createFramesFolder(writer.rgb, signalName, "rgb"))
+            {
+                log()->error("{} Unable to create the folder associated to the frames of the "
+                             "exogenous image signal named {}.",
+                             logPrefix,
+                             signalName);
+                return false;
+            }
+        }
+        writer.resetIndex = true;
     }
 
     // save the status of the code
