@@ -1453,7 +1453,7 @@ bool BipedalLocomotion::YarpRobotLoggerDevice::prepareExogenousImageLogging()
         auto saver = std::make_shared<VideoWriter::ImageSaver>();
         saver->saveMode = VideoWriter::SaveMode::Frame; // We assume the exogenous images are
                                                         // spurious frames
-        m_exogenousImageWriters[signal.signalName].rgb = saver;
+        m_exogenousImageWriters[name].rgb = saver;
 
         // Equivalent to prepareCameraLogging for exogenous images
         if (!this->createFramesFolder(saver, signal.signalName, "rgb"))
@@ -1503,7 +1503,7 @@ bool BipedalLocomotion::YarpRobotLoggerDevice::prepareRTStreaming()
 
     std::string signalFullName = "";
 
-    for (auto & [ name, signal ] : m_vectorsCollectionSignals)
+    for (auto& [name, signal] : m_vectorsCollectionSignals)
     {
         std::lock_guard<std::mutex> lock(signal.mutex);
         BipedalLocomotion::YarpUtilities::VectorsCollection* externalSignalCollection
@@ -1513,7 +1513,7 @@ bool BipedalLocomotion::YarpRobotLoggerDevice::prepareRTStreaming()
             if (!signal.dataArrived)
             {
                 bool channelAdded = false;
-                for (const auto & [ key, vector ] : externalSignalCollection->vectors)
+                for (const auto& [key, vector] : externalSignalCollection->vectors)
                 {
                     signalFullName = signal.signalName + treeDelim + key;
                     const auto& metadata = signal.metadata.vectors.find(key);
@@ -1538,7 +1538,7 @@ bool BipedalLocomotion::YarpRobotLoggerDevice::prepareRTStreaming()
         }
     }
 
-    for (auto & [ name, signal ] : m_vectorSignals)
+    for (auto& [name, signal] : m_vectorSignals)
     {
         std::lock_guard<std::mutex> lock(signal.mutex);
         yarp::sig::Vector* vector = signal.port.read(false);
@@ -2355,7 +2355,35 @@ void YarpRobotLoggerDevice::run()
 
         if (yarpImage != nullptr)
         {
-            // TODO save the image here with a frame saver
+            log()->info("{} New image arrived from signal named: {}", logPrefix, signal.signalName);
+            // Convert the frame from yarp to cv
+            auto colorImg = cv::Mat(yarpImage->height(),
+                                    yarpImage->width(),
+                                    yarp::cv::type_code<yarp::sig::PixelRgb>::value,
+                                    yarpImage->getRawImage(),
+                                    yarpImage->getRowSize());
+
+            // Save the frame
+            log()->info("{} Saving exogenous image from signal named: {}",
+                        logPrefix,
+                        signal.signalName);
+            const std::filesystem::path imgPath
+                = m_exogenousImageWriters[name].rgb->framesPath
+                  / ("img_" + std::to_string(m_exogenousImageWriters[name].frameIndex++) + ".png");
+            log()->info("{} Image path: {}", logPrefix, imgPath.string());
+            cv::imwrite(imgPath.string(), colorImg);
+
+            // lock the the buffered manager mutex
+            log()->info("{} Locking the buffer manager mutex...", logPrefix);
+            std::lock_guard lock(m_bufferManagerMutex);
+
+            // TODO here we may save the frame itself
+            log()->info("{} Pushing back the timestamp for exogenous image from signal named: {}",
+                        logPrefix,
+                        signal.signalName);
+            m_bufferManager.push_back(std::chrono::duration<double>(time).count(),
+                                      std::chrono::duration<double>(time).count(),
+                                      "exogenous_images::" + signal.signalName + "::rgb");
         }
     }
 
