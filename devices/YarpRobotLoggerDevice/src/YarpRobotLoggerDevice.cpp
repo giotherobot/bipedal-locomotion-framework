@@ -2007,6 +2007,9 @@ void YarpRobotLoggerDevice::saveExogenousImages(
                                     yarpImage->getRawImage(),
                                     yarpImage->getRowSize());
 
+            // Lock the image saver mutex
+            std::lock_guard<std::mutex> imageLock(writer.rgb->mutex);
+
             // Save the frame
             const std::filesystem::path imgPath
                 = m_exogenousImageWriters[signal.signalName].rgb->framesPath
